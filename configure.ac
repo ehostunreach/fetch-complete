@@ -1,4 +1,4 @@
-AC_INIT([amhello], [1.0], [bug-automake@gnu.org])
+AC_INIT([autocomplete], [1.0], [ehostunreach@gmail.com])
 
 AC_PROG_CC
 AC_CONFIG_HEADERS([config.h])

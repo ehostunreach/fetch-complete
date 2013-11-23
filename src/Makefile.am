@@ -1,4 +1,4 @@
-bin_PROGRAMS = hello
-hello_SOURCES = main.c
-hello_CFLAGS = $(libsoup_CFLAGS)
-hello_LDFLAGS = $(libsoup_LIBS)
+bin_PROGRAMS = server
+server_SOURCES = server.c
+server_CFLAGS = $(libsoup_CFLAGS)
+server_LDFLAGS = $(libsoup_LIBS)
