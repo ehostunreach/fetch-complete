@@ -6,6 +6,7 @@ AC_CONFIG_FILES([Makefile src/Makefile])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 PKG_CHECK_MODULES([libsoup], [libsoup-2.4 >= 2.26])
+PKG_CHECK_MODULES([json_glib], [json-glib-1.0 >= 0.14])
 AM_PROG_CC_C_O
 
 AC_OUTPUT
