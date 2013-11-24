@@ -20,21 +20,13 @@ print_message(SoupMessage *msg, const char *path)
 }
 
 static void
-do_get(SoupServer *server, SoupMessage *msg)
-{
-    (void) server;
-    (void) msg;
-
-    g_print("Processing get message\n");
-}
-
-static void
-do_put(SoupServer *server, SoupMessage *msg)
+do_post(SoupServer *server, SoupMessage *msg)
 {
     (void) server;
     (void) msg;
 
     g_print("Processing put message\n");
+    soup_message_set_status(msg, SOUP_STATUS_OK);
 }
 
 static void
@@ -48,10 +40,8 @@ server_callback(SoupServer *server, SoupMessage *msg,
 
     print_message(msg, path);
 
-    if (msg->method == SOUP_METHOD_GET || msg->method == SOUP_METHOD_HEAD)
-        do_get(server, msg);
-    else if (msg->method == SOUP_METHOD_PUT)
-        do_put(server, msg);
+    if (msg->method == SOUP_METHOD_POST)
+        do_post(server, msg);
     else
         soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
 
