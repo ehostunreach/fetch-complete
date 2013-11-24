@@ -1,5 +1,6 @@
 *.swp
 *.o
+src/server
 
 # ignore files from autotools
 
