@@ -12,11 +12,59 @@ struct request {
 };
 
 static struct request *
+get_request_from_json_object(JsonObject *object)
+{
+    struct request *req;
+    unsigned line, column;
+    const char *source_code, *clang_args;
+
+    /* extract keys/values from object */
+    line = json_object_get_int_member(object, "line");
+    column = json_object_get_int_member(object, "column");
+
+    source_code = json_object_get_string_member(object, "source_code");
+    clang_args = json_object_get_string_member(object, "clang_args");
+    if (!source_code || !clang_args) {
+        g_print("Missing keys from JSON data!\n");
+        return NULL;
+    }
+
+    /* allocate and fill the request */
+    req = g_malloc(sizeof(struct request));
+    if (!req) {
+        g_printerr("Out of memory!\n");
+        return NULL;
+    }
+
+    req->line = line;
+    req->column = column;
+
+    req->source_code = g_strdup(source_code);
+    if (!req->source_code) {
+        g_printerr("out of memory!\n");
+
+        g_free(req);
+        return NULL;
+    }
+
+    req->clang_args = g_strdup(clang_args);
+    if (!req->clang_args) {
+        g_printerr("out of memory!\n");
+
+        g_free(req->source_code);
+        g_free(req);
+        return NULL;
+    }
+
+    return req;
+}
+
+static struct request *
 get_request_from_message(SoupMessage *msg)
 {
     struct request *req;
     JsonParser *parser;
-    JsonNode *root, *source_nd, *line_nd, *column_nd;
+    JsonNode *root;
     JsonObject *object;
 
     /* create parser */
@@ -31,7 +79,6 @@ get_request_from_message(SoupMessage *msg)
                                     msg->request_body->length, NULL))
     {
         g_printerr("Failed to parse JSON data!\n");
-
         g_object_unref(parser);
         return NULL;
     }
@@ -40,7 +87,6 @@ get_request_from_message(SoupMessage *msg)
     root = json_parser_get_root(parser);
     if (!root) {
         g_printerr("Bad JSON root node\n");
-
         g_object_unref(parser);
         return NULL;
     }
@@ -49,38 +95,12 @@ get_request_from_message(SoupMessage *msg)
     object = json_node_get_object(root);
     if (!object) {
         g_printerr("Bad object in JSON node!\n");
-
         g_object_unref(parser);
         return NULL;
     }
 
-    /* extract keys from object */
-
-    /* allocate and fill the request */
-    req = g_malloc(sizeof(struct request));
-    if (!req) {
-        g_printerr("Out of memory!\n");
-
-        g_object_unref(parser);
-        return NULL;
-    }
-
-    req->source_code = strdup(json_object_get_string_member(object, "source_code"));
-    req->line = json_object_get_int_member(object, "line");
-    req->column = json_object_get_int_member(object, "column");
-    req->clang_args = strdup(json_object_get_string_member(object, "clang_args"));
-
-    if (!req->source_code || !req->clang_args) {
-        g_print("Malformed JSON data!\n");
-
-        g_object_unref(parser);
-        g_free(req);
-        return NULL;
-    }
-
-    /* destroy parser */
+    req = get_request_from_json_object(object);
     g_object_unref(parser);
-
     return req;
 }
 
@@ -88,20 +108,11 @@ static int
 process_message(SoupMessage *msg)
 {
     struct request *req;
-    static int i = 0;
-    char *source_code, *clang_args;
-    size_t size;
 
     req = get_request_from_message(msg);
     if (!req)
         return -1;
 
-    i++;
-
-    fprintf(stdout, "%d) position: (%u, %u)\n", i, req->line, req->column);
-    fprintf(stdout, "%d) clang args:\n%s\n", i, req->clang_args);
-    fprintf(stdout, "%d) source code:\n%s\n", i, req->source_code);
-    fflush(stdout);
 
     g_free(req->source_code);
     g_free(req->clang_args);
@@ -119,7 +130,6 @@ server_callback(SoupServer *server, SoupMessage *msg,
     (void) query;
     (void) context;
     (void) data;
-    static int i = 0;
 
     if (msg->method != SOUP_METHOD_POST) {
         soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
