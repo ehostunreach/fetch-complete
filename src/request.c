@@ -113,13 +113,16 @@ object_foreach_handler(JsonObject *object,
                        JsonNode *member_node,
                        gpointer user_data)
 {
-    struct u_dict *dict = user_data;
+    struct u_dict *dict;
     char *key, *value;
 
+    (void) object;
+
+    dict = user_data;
     key = u_strdup(member_name);
     value = u_strdup(json_node_get_string(member_node));
 
-    u_dict_add(dict, key, value);
+    u_dict_add(dict, (void *) key, (void *) value);
 }
 
 static struct u_dict *
