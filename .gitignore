@@ -32,3 +32,4 @@ ltmain.sh
 /src/utils/.deps
 /src/utils/.dirstamp
 /src/.libs
+tags
