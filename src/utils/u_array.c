@@ -1,4 +1,5 @@
 #include <glib.h>
+#include "u_assert.h"
 #include "u_log.h"
 #include "u_alloc.h"
 #include "u_array.h"
@@ -14,24 +15,19 @@ u_array_init(void)
     struct u_array *array;
 
     gptr_arr = g_ptr_array_new();
-    if (!gptr_arr) {
-        u_warn("Failed to create new pointer array!\n");
-        return NULL;
-    }
+    u_assert(gptr_arr);
 
     array = u_malloc(sizeof(struct u_array));
-    if (!array) {
-        g_ptr_array_unref(gptr_arr);
-        return NULL;
-    }
-
     array->gptr_arr = gptr_arr;
+
     return array;
 }
 
 void
 u_array_fini(struct u_array *array)
 {
+    u_assert(array && array->gptr_arr);
+
     g_ptr_array_unref(array->gptr_arr);
     u_free(array);
 }
@@ -39,17 +35,24 @@ u_array_fini(struct u_array *array)
 void
 u_array_add(struct u_array *array, void *data)
 {
+    /* we do not allow NULL elements */
+    u_assert(array && data);
+
     g_ptr_array_add(array->gptr_arr, data);
 }
 
 void *
 u_array_index(struct u_array *array, int index)
 {
+    u_assert(array && (index >= 0) && (indx < u_array_length(array)));
+
     return g_ptr_array_index(array->gptr_arr, index);
 }
 
 unsigned
 u_array_length(struct u_array *array)
 {
+    u_assert(array);
+
     return array->gptr_arr->len;
 }
