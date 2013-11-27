@@ -44,7 +44,7 @@ u_array_add(struct u_array *array, void *data)
 void *
 u_array_index(struct u_array *array, int index)
 {
-    u_assert(array && (index >= 0) && (indx < u_array_length(array)));
+    u_assert(array && (index >= 0) && (index < u_array_length(array)));
 
     return g_ptr_array_index(array->gptr_arr, index);
 }

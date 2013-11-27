@@ -1,4 +1,5 @@
 #include <glib.h>
+#include "u_assert.h"
 #include "u_log.h"
 #include "u_string.h"
 
