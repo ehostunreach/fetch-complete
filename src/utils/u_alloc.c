@@ -36,6 +36,7 @@ u_calloc(size_t nmemb, size_t size)
 void
 u_free(void *ptr)
 {
-    u_error("Request to free NULL pointer!\n");
+    if (!ptr)
+        u_error("Request to free NULL pointer!\n");
     g_free(ptr);
 }
