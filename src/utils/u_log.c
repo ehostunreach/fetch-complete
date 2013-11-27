@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdarg.h>
 #include <glib.h>
 #include "u_log.h"
@@ -12,4 +13,7 @@ u_log(int level, const char *format, ...)
     va_start(ap, format);
     g_logv(G_LOG_DOMAIN, level, format, ap);
     va_end(ap);
+
+    if (level == G_LOG_LEVEL_CRITICAL)
+        abort();
 }
