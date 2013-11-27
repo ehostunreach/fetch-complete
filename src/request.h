@@ -1,7 +1,7 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
-#include "util.h"
+#include "utils/util.h"
 
 struct request {
     char *file_name;
