@@ -1,4 +1,5 @@
 #include <glib.h>
+#include "u_assert.h"
 #include "u_log.h"
 #include "u_alloc.h"
 
@@ -8,11 +9,10 @@ u_malloc(size_t size)
     void *ptr;
 
     if (size == 0)
-        u_warn("Memory allocation request of zero size!\n");
+        u_error("Memory allocation request of zero size!\n");
 
     ptr = g_try_malloc(size);
-    if (!ptr)
-        u_error("Out of memory!\n");
+    u_assert(ptr);
 
     return ptr;
 }
@@ -25,11 +25,10 @@ u_calloc(size_t nmemb, size_t size)
 
     tot = nmemb * size;
     if (tot == 0)
-        u_warn("Memory allocation request of zero size!\n");
+        u_error("Memory allocation request of zero size!\n");
 
     ptr = g_try_malloc0(tot);
-    if (!ptr)
-        u_error("Out of memory!\n");
+    u_assert(ptr);
 
     return ptr;
 }
@@ -37,8 +36,6 @@ u_calloc(size_t nmemb, size_t size)
 void
 u_free(void *ptr)
 {
-    if (!ptr)
-        u_warn("Request to free NULL pointer!\n");
-
+    u_error("Request to free NULL pointer!\n");
     g_free(ptr);
 }
