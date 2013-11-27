@@ -10,6 +10,8 @@ get_message_parser(const char *msg)
     JsonParser *parser;
     size_t size;
 
+    u_assert(msg);
+
     parser = json_parser_new();
     if (!parser) {
         u_warn("Failed to create JSON parser!\n");
@@ -28,13 +30,19 @@ get_message_parser(const char *msg)
 }
 
 static JsonNode *
-get_query_result(JsonNode *root, char *expression)
+query_parser(JsonParser *parser, const char *expr)
 {
-    JsonNode *result;
+    JsonNode *root, *result;
     JsonArray *array;
     unsigned length;
 
-    result = json_path_query(expression, root, NULL);
+    root = json_parser_get_root(parser);
+    if (!root) {
+        u_warn("Parser's root node is NULL!\n");
+        return NULL;
+    }
+
+    result = json_path_query(expr, root, NULL);
     if (!result) {
         u_warn("JSON path query failed!\n");
         return NULL;
@@ -65,24 +73,20 @@ get_query_result(JsonNode *root, char *expression)
 }
 
 static char *
-get_string(JsonParser *parser, char *expr)
+get_string(JsonParser *parser, const char *expr)
 {
-    JsonNode *root, *node;
+    JsonNode *node;
     const char *str;
 
-    root = json_parser_get_root(parser);
-    if (!root) {
-        u_warn("Failed to get parser root!\n");
-        return NULL;
-    }
+    u_assert(parser && expr);
 
-    node = get_query_result(root, expr);
+    node = query_parser(parser, expr);
     if (!node)
         return NULL;
 
     str = json_node_get_string(node);
     if (!str) {
-        u_warn("Failed to get JSON node's string!\n");
+        u_warn("JSON node has a NULL string!\n");
         return NULL;
     }
 
@@ -90,17 +94,13 @@ get_string(JsonParser *parser, char *expr)
 }
 
 static int
-get_integer(JsonParser *parser, char *expr)
+get_integer(JsonParser *parser, const char *expr)
 {
-    JsonNode *root, *node;
+    JsonNode *node;
 
-    root = json_parser_get_root(parser);
-    if (!root) {
-        u_warn("Failed to get parser root!\n");
-        return 0;
-    }
+    u_assert(parser && expr);
 
-    node = get_query_result(root, expr);
+    node = query_parser(parser, expr);
     if (!node)
         return 0;
 
@@ -126,19 +126,13 @@ object_foreach_handler(JsonObject *object,
 }
 
 static struct u_dict *
-get_dict(JsonParser *parser, char *expr)
+get_dict(JsonParser *parser, const char *expr)
 {
-    JsonNode *root, *node;
+    JsonNode *node;
     JsonObject *object;
     struct u_dict *dict;
 
-    root = json_parser_get_root(parser);
-    if (!root) {
-        u_warn("Failed to get parser root!\n");
-        return NULL;
-    }
-
-    node = get_query_result(root, expr);
+    node = query_parser(parser, expr);
     if (!node)
         return NULL;
 
