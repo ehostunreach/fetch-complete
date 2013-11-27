@@ -17,7 +17,7 @@ void
 u_array_add(struct u_array *array, void *data);
 
 void *
-u_array_index(struct u_array *array, int index);
+u_array_index(struct u_array *array, unsigned index);
 
 unsigned
 u_array_length(struct u_array *array);
