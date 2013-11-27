@@ -12,7 +12,7 @@ u_malloc(size_t size)
 
     ptr = g_try_malloc(size);
     if (!ptr)
-        u_warn("Out of memory!\n");
+        u_error("Out of memory!\n");
 
     return ptr;
 }
@@ -29,7 +29,7 @@ u_calloc(size_t nmemb, size_t size)
 
     ptr = g_try_malloc0(tot);
     if (!ptr)
-        u_warn("Out of memory!\n");
+        u_error("Out of memory!\n");
 
     return ptr;
 }
