@@ -5,8 +5,7 @@
 size_t
 u_strlen(const char *str)
 {
-    if (!str)
-        u_error("Request to count NULL-string length!\n");
+    u_assert(str);
 
     return g_utf8_strlen(str, -1);
 }
@@ -16,14 +15,9 @@ u_strdup(const char *str)
 {
     char *ret;
 
-    if (!str)
-        u_error("Request to duplicate NULL string!\n");
-
+    u_assert(str);
     ret = g_strdup(str);
-    if (!ret) {
-        u_warn("String duplication failed!\n");
-        return NULL;
-    }
+    u_assert(ret);
 
     return ret;
 }
