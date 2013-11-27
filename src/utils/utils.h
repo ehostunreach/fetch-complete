@@ -5,6 +5,7 @@
 
 #include <u_log.h>
 #include <u_alloc.h>
+#include <u_string.h>
 #include <u_array.h>
 #include <u_dict.h>
 
