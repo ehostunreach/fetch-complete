@@ -1,8 +1,6 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
-#include "utils/util.h"
-
 struct request {
     char *file_name;
     unsigned line, column;

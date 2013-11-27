@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <json-glib/json-glib.h>
+#include <utils/utils.h>
 #include "request.h"
 
 static JsonParser *

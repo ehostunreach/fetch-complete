@@ -1,5 +1,7 @@
 *.swp
 *.o
+*.la
+*.lo
 src/server
 
 # ignore files from autotools
@@ -7,8 +9,8 @@ src/server
 config.h
 config.log
 config.status
-src/.deps
-src/hello
+/src/.deps
+/src/hello
 Makefile
 Makefile.in
 /autom4te.cache
@@ -20,3 +22,12 @@ Makefile.in
 /missing
 /stamp-h1
 /config.h.in
+ar-lib
+config.guess
+config.sub
+libtool
+ltmain.sh
+/m4
+/src/utils/.deps
+/src/utils/.dirstamp
+/src/.libs
