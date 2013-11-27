@@ -3,120 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libsoup/soup.h>
-#include <json-glib/json-glib.h>
-
-struct request {
-    char *source_code;
-    unsigned line, column;
-    char *clang_args;
-};
-
-static struct request *
-get_request_from_json_object(JsonObject *object)
-{
-    struct request *req;
-    unsigned line, column;
-    const char *source_code, *clang_args;
-
-    /* extract keys/values from object */
-    line = json_object_get_int_member(object, "line");
-    column = json_object_get_int_member(object, "column");
-
-    source_code = json_object_get_string_member(object, "source_code");
-    clang_args = json_object_get_string_member(object, "clang_args");
-    if (!source_code || !clang_args) {
-        g_print("Missing keys from JSON data!\n");
-        return NULL;
-    }
-
-    /* allocate and fill the request */
-    req = g_malloc(sizeof(struct request));
-    if (!req) {
-        g_printerr("Out of memory!\n");
-        return NULL;
-    }
-
-    req->line = line;
-    req->column = column;
-
-    req->source_code = g_strdup(source_code);
-    if (!req->source_code) {
-        g_printerr("out of memory!\n");
-
-        g_free(req);
-        return NULL;
-    }
-
-    req->clang_args = g_strdup(clang_args);
-    if (!req->clang_args) {
-        g_printerr("out of memory!\n");
-
-        g_free(req->source_code);
-        g_free(req);
-        return NULL;
-    }
-
-    return req;
-}
-
-static struct request *
-get_request_from_message(SoupMessage *msg)
-{
-    struct request *req;
-    JsonParser *parser;
-    JsonNode *root;
-    JsonObject *object;
-
-    /* create parser */
-    parser = json_parser_new();
-    if (!parser) {
-        g_printerr("Failed to create json parser!\n");
-        return NULL;
-    }
-
-    /* read json data */
-    if (!json_parser_load_from_data(parser, msg->request_body->data,
-                                    msg->request_body->length, NULL))
-    {
-        g_printerr("Failed to parse JSON data!\n");
-        g_object_unref(parser);
-        return NULL;
-    }
-
-    /* get root node */
-    root = json_parser_get_root(parser);
-    if (!root) {
-        g_printerr("Bad JSON root node\n");
-        g_object_unref(parser);
-        return NULL;
-    }
-
-    /* get root object */
-    object = json_node_get_object(root);
-    if (!object) {
-        g_printerr("Bad object in JSON node!\n");
-        g_object_unref(parser);
-        return NULL;
-    }
-
-    req = get_request_from_json_object(object);
-    g_object_unref(parser);
-    return req;
-}
+#include "request.h"
 
 static int
 process_message(SoupMessage *msg)
 {
     struct request *req;
 
-    req = get_request_from_message(msg);
+    req = request_new(msg->request_body->data);
     if (!req)
         return -1;
 
-
-    g_free(req->source_code);
-    g_free(req->clang_args);
-    g_free(req);
     return 0;
 }
 

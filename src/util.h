@@ -21,6 +21,9 @@ void *u_malloc(size_t size);
 void *u_calloc(size_t nmemb, size_t size);
 void u_free(void *ptr);
 
+size_t u_strlen(const char *msg);
+char *u_strdup(const char *str);
+
 struct u_array;
 
 struct u_array *
@@ -39,10 +42,6 @@ unsigned
 u_array_length(struct u_array *array);
 
 struct u_dict;
-typedef void (*u_func)(void *data, void *user_data);
-
-void
-u_dict_foreach_value(struct u_dict *dict, u_func func);
 
 struct u_dict *
 u_dict_init(void);
@@ -55,5 +54,10 @@ u_dict_add(struct u_dict *dict, char *key, void *data);
 
 void *
 u_dict_get(struct u_dict *dict, const char *key);
+
+typedef void (*u_dict_foreach)(void *key, void *value);
+
+void
+u_dict_iter(struct u_dict *dict, u_dict_foreach func);
 
 #endif /* UTIL_H */

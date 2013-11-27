@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include <glib.h>
 #include "util.h"
 
@@ -54,6 +55,32 @@ u_free(void *ptr)
         u_warn("Request to free NULL pointer!\n");
 
     free(ptr);
+}
+
+size_t
+u_strlen(const char *str)
+{
+    if (!str)
+        u_error("Request to count NULL-string length!\n");
+
+    return strlen(str);
+}
+
+char *
+u_strdup(const char *str)
+{
+    char *ret;
+
+    if (!str)
+        u_error("Request to duplicate NULL string!\n");
+
+    ret = strdup(str);
+    if (!ret) {
+        u_warn("String duplication failed!\n");
+        return NULL;
+    }
+
+    return ret;
 }
 
 struct u_array {
@@ -150,4 +177,16 @@ void *
 u_dict_get(struct u_dict *dict, const char *key)
 {
     return g_hash_table_lookup(dict->ht, key);
+}
+
+void
+u_dict_iter(struct u_dict *dict, u_dict_foreach func)
+{
+    GHashTableIter iter;
+    gpointer key, value;
+
+    g_hash_table_iter_init(&iter, dict->ht);
+    while (g_hash_table_iter_next(&iter, &key, &value)) {
+        func(key, value);
+    }
 }
