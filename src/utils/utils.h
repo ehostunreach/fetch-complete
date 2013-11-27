@@ -3,6 +3,7 @@
 
 #define __INSIDE_UTILS__
 
+#include <u_assert.h>
 #include <u_log.h>
 #include <u_alloc.h>
 #include <u_string.h>
