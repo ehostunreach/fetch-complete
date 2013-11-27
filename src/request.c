@@ -196,8 +196,6 @@ request_new(const char *msg)
     struct request *req;
 
     req = u_malloc(sizeof(struct request));
-    if (!req)
-        return NULL;
 
     if (parse_message(req, msg)) {
         u_free(req);
