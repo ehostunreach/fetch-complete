@@ -7,4 +7,7 @@
 
 char *u_getenv(const char *name);
 
+int u_parse_shell_args(const char *command_line,
+                       int *argcp, char ***argvp);
+
 #endif /* U_MISC_H */
