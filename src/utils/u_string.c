@@ -22,3 +22,13 @@ u_strdup(const char *str)
 
     return ret;
 }
+
+int
+u_dump_string_to_file(const char *filename, const char *contents)
+{
+    if (g_file_set_contents(filename, contents, -1, NULL))
+        return 0;
+
+    u_warn("Failed to dump contents to file: %s!\n", filename);
+    return 1;
+}
