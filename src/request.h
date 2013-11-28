@@ -13,6 +13,9 @@ struct request *
 request_new(const char *msg);
 
 void
+request_response(struct request *req);
+
+void
 request_destroy(struct request *req);
 
 #endif /* REQUEST_H */

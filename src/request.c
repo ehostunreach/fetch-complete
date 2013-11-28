@@ -225,3 +225,24 @@ request_new(const char *msg)
 
     return req;
 }
+
+int
+dump_file(void *key, void *value)
+{
+    char *filename, *contents;
+
+    filename = key;
+    contents = value;
+
+    if (u_dump_string_to_file(filename, contents))
+        return 1;
+
+    return 0;
+}
+
+void
+request_response(struct request *req)
+{
+    if (u_dict_iter(req->files, dump_file))
+        u_warn("Failed to create request files!\n");
+}

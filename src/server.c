@@ -14,6 +14,8 @@ process_message(SoupMessage *msg)
     if (!req)
         return -1;
 
+    request_response(req);
+
     return 0;
 }
 
