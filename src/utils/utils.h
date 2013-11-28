@@ -9,6 +9,7 @@
 #include <u_string.h>
 #include <u_array.h>
 #include <u_dict.h>
+#include <u_misc.h>
 
 #undef __INSIDE_UTILS__
 

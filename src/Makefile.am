@@ -9,6 +9,7 @@ include_HEADERS = utils/u_log.h			\
 				  utils/u_string.h		\
 				  utils/u_array.h		\
 				  utils/u_dict.h		\
+				  utils/u_misc.h		\
 				  utils/utils.h
 libutils_la_CFLAGS = $(glib_CFLAGS) -DUTILS_COMPILATION
 libutils_la_LDFLAGS = $(glib_LIBS)
