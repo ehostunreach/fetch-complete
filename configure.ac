@@ -14,7 +14,24 @@ PKG_CHECK_MODULES([json_glib], [json-glib-1.0 >= 0.14])
 AM_PROG_CC_C_O
 AM_PROG_AR
 
+AC_ARG_WITH([llvm-prefix],
+    [AS_HELP_STRING([--with-llvm-prefix],
+        [Prefix for LLVM installations in non-standard locations])],
+    [llvm_prefix="$withval"],
+    [llvm_prefix=""])
+
+AC_PATH_PROG([LLVM_CONFIG], [llvm-config], [no], ["$llvm_prefix/bin"])
+
+if test -x $LLVM_CONFIG; then
+    CLANG_CFLAGS=`$LLVM_CONFIG --cflags`
+    CLANG_LDFLAGS="`$LLVM_CONFIG --ldflags` -lclang"
+
+else
+    AC_MSG_ERROR([Can not find llvm-config. Please, specify the llvm-prefix])
+fi
+
+AC_SUBST([CLANG_CFLAGS])
+AC_SUBST([CLANG_LDFLAGS])
+
 LT_INIT
-
 AC_OUTPUT
-
