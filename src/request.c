@@ -57,7 +57,7 @@ query_parser(JsonParser *parser, const char *expr)
 
     length = json_array_get_length(array);
     if (length != 1) {
-        u_warn("Bad array length: %u\n", length);
+        u_warn("The JSON path didn't match any elements.\n", length);
         json_node_free(result);
         return NULL;
     }
@@ -84,6 +84,11 @@ get_string(JsonParser *parser, const char *expr)
     if (!node)
         return NULL;
 
+    if (!JSON_NODE_HOLDS_VALUE(node)) {
+        u_warn("JSON node doesn't contain a valid value!\n");
+        return NULL;
+    }
+
     str = json_node_get_string(node);
     if (!str) {
         u_warn("JSON node has a NULL string!\n");
@@ -104,6 +109,11 @@ get_integer(JsonParser *parser, const char *expr)
     if (!node)
         return 0;
 
+    if (!JSON_NODE_HOLDS_VALUE(node)) {
+        u_warn("JSON node doesn't contain a valid value!\n");
+        return 0;
+    }
+
     return (int) json_node_get_int(node);
 }
 
@@ -115,13 +125,25 @@ object_foreach_handler(JsonObject *object,
 {
     struct u_dict *dict;
     char *key, *value;
+    const char *node_string;
 
     (void) object;
 
-    dict = user_data;
-    key = u_strdup(member_name);
-    value = u_strdup(json_node_get_string(member_node));
+    if (!member_name || !member_node || !user_data) {
+        u_warn("Bad dictionary values!\n");
+        return;
+    }
 
+    node_string = json_node_get_string(member_node);
+    if (!node_string) {
+        u_warn("JSON node has a NULL string!\n");
+        return;
+    }
+
+    key = u_strdup(member_name);
+    value = u_strdup(node_string);
+
+    dict = user_data;
     u_dict_add(dict, (void *) key, (void *) value);
 }
 
@@ -135,6 +157,11 @@ get_dict(JsonParser *parser, const char *expr)
     node = query_parser(parser, expr);
     if (!node)
         return NULL;
+
+    if (!JSON_NODE_HOLDS_OBJECT(node)) {
+        u_warn("JSON node doesn't contain a valid object!\n");
+        return 0;
+    }
 
     object = json_node_get_object(node);
     if (!object) {
