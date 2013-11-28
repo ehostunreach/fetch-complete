@@ -15,7 +15,7 @@ void u_dict_add(struct u_dict *dict, char *key, void *data);
 
 void *u_dict_get(struct u_dict *dict, const char *key);
 
-typedef void (*u_dict_foreach)(void *key, void *value);
-void u_dict_iter(struct u_dict *dict, u_dict_foreach func);
+typedef int (*u_dict_foreach)(void *key, void *value);
+int u_dict_iter(struct u_dict *dict, u_dict_foreach func);
 
 #endif /* U_DICT_H */

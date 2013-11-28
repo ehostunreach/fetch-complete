@@ -47,7 +47,7 @@ u_dict_get(struct u_dict *dict, const char *key)
     return g_hash_table_lookup(dict->ht, key);
 }
 
-void
+int
 u_dict_iter(struct u_dict *dict, u_dict_foreach func)
 {
     GHashTableIter iter;
@@ -57,6 +57,9 @@ u_dict_iter(struct u_dict *dict, u_dict_foreach func)
 
     g_hash_table_iter_init(&iter, dict->ht);
     while (g_hash_table_iter_next(&iter, &key, &value)) {
-        func(key, value);
+        if (func(key, value))
+            return 1;
     }
+
+    return 0;
 }
