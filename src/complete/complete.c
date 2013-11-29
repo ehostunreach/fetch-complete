@@ -26,6 +26,7 @@ get_json_data(struct cc_request *req)
     data = json_generator_to_data(generator, NULL);
     u_assert(data);
 
+    json_node_free(root);
     g_object_unref(generator);
     g_object_unref(builder);
 
