@@ -19,8 +19,9 @@ process_message(SoupMessage *msg)
     if (!data)
         return 1;
 
-    soup_message_set_response(msg, "application/json; charset=utf-8",
+    soup_message_set_response(msg, "application/json",
                               SOUP_MEMORY_TAKE, data, strlen(data));
+    soup_message_set_status(msg, SOUP_STATUS_OK);
     return 0;
 }
 
@@ -41,7 +42,7 @@ server_callback(SoupServer *server, SoupMessage *msg,
     }
 
     if ((msg->request_body->length > 0) && (process_message(msg) == 0))
-        soup_message_set_status(msg, SOUP_STATUS_OK);
+        return;
     else
         soup_message_set_status(msg, SOUP_STATUS_INTERNAL_SERVER_ERROR);
 }
