@@ -483,7 +483,7 @@ cursor_kind_str(enum CXCursorKind cx_kind)
             break;
     }
 
-    return str;
+    return u_strdup(str);
 }
 
 char *
