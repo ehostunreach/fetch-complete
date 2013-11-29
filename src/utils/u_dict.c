@@ -4,6 +4,36 @@
 #include "u_alloc.h"
 #include "u_dict.h"
 
+unsigned
+u_direct_hash(const void *key)
+{
+    return g_direct_hash(key);
+}
+
+unsigned
+u_str_hash(const void *key)
+{
+    return g_str_hash(key);
+}
+
+unsigned
+u_int_hash(const void *key)
+{
+    return g_int_hash(key);
+}
+
+int
+u_direct_equal(const void *a, const void *b)
+{
+    return g_direct_equal(a, b);
+}
+
+int
+u_str_equal(const void *a, const void *b)
+{
+    return g_str_equal(a, b);
+}
+
 struct u_dict {
     GHashTable *ht;
 };
@@ -15,6 +45,24 @@ u_dict_init(void)
     struct u_dict *dict;
 
     ghtable = g_hash_table_new(g_str_hash, g_str_equal);
+    u_assert(ghtable);
+
+    dict = u_malloc(sizeof(struct u_dict));
+    dict->ht = ghtable;
+    return dict;
+}
+
+struct u_dict *
+u_dict_init_full(u_hash_func hash_func,
+                 u_equal_func equal_func,
+                 u_dict_free key_destroy,
+                 u_dict_free value_destroy)
+{
+    GHashTable *ghtable;
+    struct u_dict *dict;
+
+    ghtable = g_hash_table_new_full(hash_func, equal_func,
+                                    key_destroy, value_destroy);
     u_assert(ghtable);
 
     dict = u_malloc(sizeof(struct u_dict));
