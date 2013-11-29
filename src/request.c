@@ -168,7 +168,7 @@ get_dict(JsonParser *parser, const char *expr)
         return NULL;
     }
 
-    dict = u_dict_init();
+    dict = u_dict_init_full(u_str_hash, u_str_equal, u_free, u_free);
     if (!dict)
         return NULL;
 
@@ -255,4 +255,14 @@ request_response(struct request *req)
     }
 
     return data;
+}
+
+void
+request_destroy(struct request *req)
+{
+    u_assert(req);
+
+    u_free(req->file_name);
+    u_free(req->clang_args);
+    u_dict_fini(req->files);
 }

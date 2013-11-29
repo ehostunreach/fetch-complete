@@ -19,6 +19,8 @@ process_message(SoupMessage *msg)
     if (!data)
         return 1;
 
+    request_destroy(req);
+
     soup_message_set_response(msg, "application/json",
                               SOUP_MEMORY_TAKE, data, strlen(data));
     soup_message_set_status(msg, SOUP_STATUS_OK);
