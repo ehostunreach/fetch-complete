@@ -31,5 +31,7 @@ ltmain.sh
 /m4
 /src/utils/.deps
 /src/utils/.dirstamp
+/src/complete/.deps
+/src/complete/.dirstamp
 /src/.libs
 tags
