@@ -1,7 +1,6 @@
-#include <stdio.h>
-#include <stdint.h>
 #include <json-glib/json-glib.h>
 #include <utils/utils.h>
+#include <complete/complete.h>
 #include "request.h"
 
 static JsonParser *
@@ -178,6 +177,20 @@ get_dict(JsonParser *parser, const char *expr)
     return dict;
 }
 
+int
+dump_file(void *key, void *value)
+{
+    char *filename, *contents;
+
+    filename = key;
+    contents = value;
+
+    if (u_dump_string_to_file(filename, contents))
+        return 1;
+
+    return 0;
+}
+
 static int
 parse_message(struct request *req, const char *msg)
 {
@@ -199,6 +212,8 @@ parse_message(struct request *req, const char *msg)
     req->column = get_integer(parser, "$.column");
 
     req->files = get_dict(parser, "$.file_list");
+    if (u_dict_iter(req->files, dump_file))
+        u_warn("Failed to create request files!\n");
 
     g_object_unref(parser);
     return 0;
@@ -216,7 +231,7 @@ request_new(const char *msg)
 {
     struct request *req;
 
-    req = u_malloc(sizeof(struct request));
+    req = u_calloc(1, sizeof(struct request));
 
     if (parse_message(req, msg)) {
         u_free(req);
@@ -226,23 +241,18 @@ request_new(const char *msg)
     return req;
 }
 
-int
-dump_file(void *key, void *value)
-{
-    char *filename, *contents;
-
-    filename = key;
-    contents = value;
-
-    if (u_dump_string_to_file(filename, contents))
-        return 1;
-
-    return 0;
-}
-
-void
+char *
 request_response(struct request *req)
 {
-    if (u_dict_iter(req->files, dump_file))
-        u_warn("Failed to create request files!\n");
+    char *data;
+
+    u_assert(req);
+
+    data = complete(req->file_name, req->line, req->column, req->clang_args);
+    if (!data) {
+        u_warn("Failed to get a valid JSON reponse!\n");
+        return NULL;
+    }
+
+    return data;
 }

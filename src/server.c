@@ -9,13 +9,18 @@ static int
 process_message(SoupMessage *msg)
 {
     struct request *req;
+    char *data;
 
     req = request_new(msg->request_body->data);
     if (!req)
-        return -1;
+        return 1;
 
-    request_response(req);
+    data = request_response(req);
+    if (!data)
+        return 1;
 
+    soup_message_set_response(msg, "application/json; charset=utf-8",
+                              SOUP_MEMORY_TAKE, data, strlen(data));
     return 0;
 }
 

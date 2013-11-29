@@ -12,7 +12,7 @@ struct request {
 struct request *
 request_new(const char *msg);
 
-void
+char *
 request_response(struct request *req);
 
 void

@@ -1,8 +1,11 @@
 #include <clang-c/Index.h>
+#include <json-glib/json-glib.h>
 #include <utils/utils.h>
+#include "cc_chunk.h"
+#include "cc_result.h"
 
 char *
-cx_get_cursor_kind_str(enum CXCursorKind cx_kind)
+cursor_kind_str(enum CXCursorKind cx_kind)
 {
     char *str = NULL;
 
@@ -484,7 +487,7 @@ cx_get_cursor_kind_str(enum CXCursorKind cx_kind)
 }
 
 char *
-cx_get_completion_chunk_kind_str(enum CXCompletionChunkKind cx_kind)
+completion_chunk_kind_str(enum CXCompletionChunkKind cx_kind)
 {
     char *str = NULL;
 
@@ -561,21 +564,94 @@ cx_get_completion_chunk_kind_str(enum CXCompletionChunkKind cx_kind)
     return str;
 }
 
-unsigned
-cx_get_default_parsing_options(void)
+
+struct cc_result *
+cc_result_init(void)
 {
-    unsigned opts = CXTranslationUnit_DetailedPreprocessingRecord;
+    struct cc_result *res;
 
-    if (u_getenv("CINDEXTEST_EDITING"))
-        opts |= clang_defaultEditingTranslationUnitOptions();
-    if (u_getenv("CINDEXTEST_COMPLETION_CACHING"))
-        opts |= CXTranslationUnit_CacheCompletionResults;
-    if (u_getenv("CINDEXTEST_COMPLETION_NO_CACHING"))
-        opts &= ~CXTranslationUnit_CacheCompletionResults;
-    if (u_getenv("CINDEXTEST_SKIP_FUNCTION_BODIES"))
-        opts |= CXTranslationUnit_SkipFunctionBodies;
-    if (u_getenv("CINDEXTEST_COMPLETION_BRIEF_COMMENTS"))
-        opts |= CXTranslationUnit_IncludeBriefCommentsInCodeCompletion;
+    res = u_malloc(sizeof(struct cc_result));
 
-    return opts;
+    res->typed_chunk = u_malloc(sizeof(struct cc_chunk));
+    res->chunks = u_array_init();
+
+    return res;
+}
+
+void
+cc_result_fini(struct cc_result *res)
+{
+    unsigned i, n;
+
+    u_assert(res && res->typed_chunk && res->chunks);
+
+    n = u_array_length(res->chunks);
+    for (i = 0; i < n; i++) {
+        struct cc_chunk *chunk;
+
+        chunk = u_array_index(res->chunks, i);
+        cc_chunk_fini(chunk);
+    }
+
+    cc_chunk_fini(res->typed_chunk);
+}
+
+void
+cc_result_fill(struct cc_result *cc_res, CXCompletionResult *cx_res)
+{
+    unsigned i, n;
+
+    u_assert(cc_res && cx_res);
+
+    cc_res->typed_chunk->kind = cursor_kind_str(cx_res->CursorKind);
+
+    n = clang_getNumCompletionChunks(cx_res->CompletionString);
+    for (i = 0; i < n; i++) {
+        enum CXCompletionChunkKind ck;
+        struct cc_chunk *chunk;
+
+        ck = clang_getCompletionChunkKind(cx_res->CompletionString, i);
+        if (ck == CXCompletionChunk_Optional) {
+            u_warn("Ignoring optional completion chunk.\n");
+            continue;
+        }
+
+        /* TODO: we're leaking like hell here. */
+        chunk = cc_chunk_init(
+            completion_chunk_kind_str(ck),
+            clang_getCString(clang_getCompletionChunkText(cx_res->CompletionString, i))
+        );
+
+        u_array_add(cc_res->chunks, chunk);
+
+        if (ck == CXCompletionChunk_TypedText)
+            cc_res->typed_chunk->text = u_strdup(chunk->text);
+    }
+}
+
+void
+cc_result_json(JsonBuilder *builder, struct cc_result *res)
+{
+    struct cc_chunk *chunk;
+    int i, n;
+
+    u_assert(builder && res);
+
+    json_builder_begin_object(builder);
+
+        json_builder_set_member_name(builder, "typed");
+        cc_chunk_json(builder, res->typed_chunk);
+
+        json_builder_set_member_name(builder, "chunks");
+        json_builder_begin_array(builder);
+
+            n = u_array_length(res->chunks);
+            for (i = 0; i < n; i++) {
+                chunk = u_array_index(res->chunks, i);
+                cc_chunk_json(builder, chunk);
+            }
+
+        json_builder_end_array(builder);
+
+    json_builder_end_object(builder);
 }
