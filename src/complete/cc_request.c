@@ -86,16 +86,25 @@ cc_request_fini(struct cc_request *req)
 
     u_assert(req);
 
-    u_free(req->fname);
+    for (i = 0; i < req->cx_argc; i++) {
+        if (req->cx_argv[i])
+            u_free(req->cx_argv[i]);
+    }
+    if (req->cx_argv)
+        u_free(req->cx_argv);
 
-    if (req->cx_tu != NULL)
+    if (req->fname)
+        u_free(req->fname);
+
+    if (req->cx_tu)
         clang_disposeTranslationUnit(req->cx_tu);
 
-    if (req->cx_idx != NULL)
+    if (req->cx_idx)
         clang_disposeIndex(req->cx_idx);
 
-    if (req->res != NULL) {
+    if (req->res) {
         n = u_array_length(req->res);
+
         for (i = 0; i < n; i++) {
             struct cc_result *res;
 
