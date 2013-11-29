@@ -596,6 +596,24 @@ cc_result_fini(struct cc_result *res)
     cc_chunk_fini(res->typed_chunk);
 }
 
+static void
+cc_result_add_chunk(struct cc_result *res, enum CXCompletionChunkKind ck,
+                                           CXString completion_string)
+{
+    struct cc_chunk *chunk;
+
+    chunk = cc_chunk_init(
+            completion_chunk_kind_str(ck),
+            clang_getCString(completion_string));
+
+    u_array_add(res->chunks, chunk);
+
+    if (ck == CXCompletionChunk_TypedText)
+        res->typed_chunk->text = u_strdup(chunk->text);
+
+    clang_disposeString(completion_string);
+}
+
 void
 cc_result_fill(struct cc_result *cc_res, CXCompletionResult *cx_res)
 {
@@ -608,7 +626,6 @@ cc_result_fill(struct cc_result *cc_res, CXCompletionResult *cx_res)
     n = clang_getNumCompletionChunks(cx_res->CompletionString);
     for (i = 0; i < n; i++) {
         enum CXCompletionChunkKind ck;
-        struct cc_chunk *chunk;
 
         ck = clang_getCompletionChunkKind(cx_res->CompletionString, i);
         if (ck == CXCompletionChunk_Optional) {
@@ -616,16 +633,8 @@ cc_result_fill(struct cc_result *cc_res, CXCompletionResult *cx_res)
             continue;
         }
 
-        /* TODO: we're leaking like hell here. */
-        chunk = cc_chunk_init(
-            completion_chunk_kind_str(ck),
-            clang_getCString(clang_getCompletionChunkText(cx_res->CompletionString, i))
-        );
-
-        u_array_add(cc_res->chunks, chunk);
-
-        if (ck == CXCompletionChunk_TypedText)
-            cc_res->typed_chunk->text = u_strdup(chunk->text);
+        cc_result_add_chunk(cc_res, ck,
+                clang_getCompletionChunkText(cx_res->CompletionString, i));
     }
 }
 
