@@ -31,7 +31,7 @@ get_message_parser(const char *msg)
 static JsonNode *
 query_parser(JsonParser *parser, const char *expr)
 {
-    JsonNode *root, *result;
+    JsonNode *root, *result, *ret;
     JsonArray *array;
     unsigned length;
 
@@ -50,25 +50,27 @@ query_parser(JsonParser *parser, const char *expr)
     array = json_node_get_array(result);
     if (!array) {
         u_warn("NULL array in JSON query result!\n");
-        json_node_free(result);
-        return NULL;
+        goto ERR_PATH_QUERY;
     }
 
     length = json_array_get_length(array);
     if (length != 1) {
         u_warn("The JSON path didn't match any elements.\n", length);
-        json_node_free(result);
-        return NULL;
+        goto ERR_PATH_QUERY;
     }
 
-    result = json_array_get_element(array, 0);
-    if (!result) {
+    ret = json_array_dup_element(array, 0);
+    if (!ret) {
         u_warn("Bad array element!\n");
-        json_node_free(result);
-        return NULL;
+        goto ERR_PATH_QUERY;
     }
 
-    return result;
+    json_node_free(result);
+    return ret;
+
+ERR_PATH_QUERY:
+    json_node_free(result);
+    return NULL;
 }
 
 static char *
@@ -76,6 +78,7 @@ get_string(JsonParser *parser, const char *expr)
 {
     JsonNode *node;
     const char *str;
+    char *ret;
 
     u_assert(parser && expr);
 
@@ -94,13 +97,17 @@ get_string(JsonParser *parser, const char *expr)
         return NULL;
     }
 
-    return u_strdup(str);
+    ret = u_strdup(str);
+    json_node_free(node);
+
+    return ret;
 }
 
 static int
 get_integer(JsonParser *parser, const char *expr)
 {
     JsonNode *node;
+    int ret;
 
     u_assert(parser && expr);
 
@@ -113,7 +120,10 @@ get_integer(JsonParser *parser, const char *expr)
         return 0;
     }
 
-    return (int) json_node_get_int(node);
+    ret = (int) json_node_get_int(node);
+    json_node_free(node);
+
+    return ret;
 }
 
 static void
@@ -174,6 +184,7 @@ get_dict(JsonParser *parser, const char *expr)
 
     json_object_foreach_member(object, object_foreach_handler, dict);
 
+    json_node_free(node);
     return dict;
 }
 

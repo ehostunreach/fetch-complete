@@ -595,6 +595,7 @@ cc_result_fini(struct cc_result *res)
 
     cc_chunk_fini(res->typed_chunk);
 
+    u_array_fini(res->chunks);
     u_free(res);
 }
 
