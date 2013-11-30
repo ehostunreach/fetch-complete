@@ -115,6 +115,9 @@ cc_request_fini(struct cc_request *req)
         u_array_fini(req->res);
     }
 
+    if (req->cx_res)
+        clang_disposeCodeCompleteResults(req->cx_res);
+
     u_free(req);
 }
 
