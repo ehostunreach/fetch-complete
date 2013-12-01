@@ -154,7 +154,7 @@ cc_request_json(JsonBuilder *builder, struct cc_request *req)
 {
     int i, n;
 
-    u_assert(bld && req);
+    u_assert(builder && req);
 
     json_builder_begin_object(builder);
 
