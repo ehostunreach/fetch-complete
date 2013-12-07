@@ -12,8 +12,6 @@ get_json_data(struct cc_request *req)
     JsonNode *root;
     char *data;
 
-    g_type_init();
-
     builder = json_builder_new();
     cc_request_json(builder, req);
     root = json_builder_get_root(builder);
