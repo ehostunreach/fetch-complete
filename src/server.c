@@ -10,6 +10,11 @@ process_message(SoupMessage *msg)
 {
     struct request *req;
     char *data;
+    GTimer *timer;
+    gulong microsecs;
+
+    timer = g_timer_new();
+    g_timer_start(timer);
 
     req = request_new(msg->request_body->data);
     if (!req)
@@ -24,6 +29,10 @@ process_message(SoupMessage *msg)
     soup_message_set_response(msg, "application/json",
                               SOUP_MEMORY_TAKE, data, strlen(data));
     soup_message_set_status(msg, SOUP_STATUS_OK);
+
+    g_timer_stop(timer);
+    g_print("Time elapsed: %f\n", g_timer_elapsed(timer, &microsecs));
+    g_timer_destroy(timer);
     return 0;
 }
 
@@ -57,6 +66,8 @@ int main(int argc, char *argv[])
 
     (void) argc;
     (void) argv;
+
+    g_type_init();
 
     server = soup_server_new(SOUP_SERVER_PORT, port,
                              SOUP_SERVER_SERVER_HEADER, "auto-complete",
