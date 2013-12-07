@@ -11,7 +11,7 @@ u_malloc(size_t size)
     if (size == 0)
         u_error("Memory allocation request of zero size!\n");
 
-    ptr = g_try_malloc(size);
+    ptr = u_calloc(1, size);
     u_assert(ptr);
 
     return ptr;
