@@ -22,9 +22,12 @@ cc_chunk_fini(struct cc_chunk *chunk)
 {
     u_assert(chunk && chunk->kind && chunk->text);
 
-    u_free(chunk->kind);
-    u_free(chunk->text);
-    u_free(chunk);
+    if (chunk->kind)
+        u_free(chunk->kind);
+    if (chunk->text)
+        u_free(chunk->text);
+    if (chunk)
+        u_free(chunk);
 }
 
 void

@@ -604,11 +604,14 @@ cc_result_add_chunk(struct cc_result *res, enum CXCompletionChunkKind ck,
                                            CXString completion_string)
 {
     struct cc_chunk *chunk;
+    char *kind_str, *text_str;
+    const char *c_str;
 
-    chunk = cc_chunk_init(
-            completion_chunk_kind_str(ck),
-            clang_getCString(completion_string));
+    kind_str = completion_chunk_kind_str(ck);
+    c_str = clang_getCString(completion_string);
+    text_str = u_strdup(c_str ? c_str : "");
 
+    chunk = cc_chunk_init(kind_str, text_str);
     u_array_add(res->chunks, chunk);
 
     if (ck == CXCompletionChunk_TypedText)
