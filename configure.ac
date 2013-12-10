@@ -1,4 +1,4 @@
-AC_INIT([autocomplete], [1.0], [ehostunreach@gmail.com])
+AC_INIT([FetchComplete], [0.1], [ehostunreach@gmail.com])
 
 CFLAGS="-Wall -Wextra -g -O0"
 AC_PROG_CC
