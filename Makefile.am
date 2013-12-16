@@ -1,4 +1,4 @@
-dist_doc_DATA = README
+dist_doc_DATA = README.md
 ACLOCAL_AMFLAGS = -I m4
 
 bin_PROGRAMS = fetch-complete
