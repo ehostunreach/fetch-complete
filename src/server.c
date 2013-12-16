@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     (void) argc;
     (void) argv;
 
-    if ((glib_major_version == 2) && (glib_minor_version < 2.36))
+    if ((glib_major_version == 2) && (glib_minor_version < 36))
         g_type_init();
 
     server = soup_server_new(SOUP_SERVER_PORT, port,
