@@ -28,7 +28,11 @@ u_array_fini(struct u_array *array)
 {
     u_assert(array && array->gptr_arr);
 
-    g_ptr_array_unref(array->gptr_arr);
+    if ((glib_major_version == 2) && (glib_minor_version >= 22))
+        g_ptr_array_unref(array->gptr_arr);
+    else
+        g_ptr_array_free(array->gptr_arr, TRUE);
+
     u_free(array);
 }
 

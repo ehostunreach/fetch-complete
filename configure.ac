@@ -29,7 +29,7 @@ else
 fi
 
 PKG_CHECK_MODULES([DEPS],
-                  [glib-2.0 >= 2.36, libsoup-2.4 >= 2.26, json-glib-1.0 >= 0.14])
+                  [glib-2.0 >= 2.16, libsoup-2.4 >= 2.26, json-glib-1.0 >= 0.14])
 
 
 AC_CONFIG_FILES([Makefile])
