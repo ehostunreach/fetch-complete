@@ -616,6 +616,8 @@ cc_result_add_chunk(struct cc_result *res, enum CXCompletionChunkKind ck,
 
     if (ck == CXCompletionChunk_TypedText)
         res->typed_chunk->text = u_strdup(chunk->text);
+    else
+        res->typed_chunk->text = u_strdup("");
 
     clang_disposeString(completion_string);
 }
